@@ -12,6 +12,35 @@
             android:icon="@mipmap/ic_launcher"
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
-            android:theme="@style/Theme.SmallThings"/>
+            android:theme="@style/Theme.SmallThings">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.SmallThings">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".CreateTaskActivity"
+            android:exported="false"
+            android:theme="@style/Theme.SmallThings.NoActionBar" />
+
+        <activity
+            android:name=".EditTaskActivity"
+            android:exported="false"
+            android:theme="@style/Theme.SmallThings.NoActionBar"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+
+        <activity
+            android:name=".TaskExecutionActivity"
+            android:exported="false"
+            android:theme="@style/Theme.SmallThings.NoActionBar"
+            android:screenOrientation="portrait" />
+
+    </application>
 
 </manifest>
