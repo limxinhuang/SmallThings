@@ -7,13 +7,15 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.limxinhuang.smallthings.databinding.ActivityTaskExecutionBinding
 import java.util.Locale
+import kotlinx.coroutines.launch
 
 class TaskExecutionActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityTaskExecutionBinding
-    private lateinit var dbHelper: TaskDatabaseHelper
+    private lateinit var repository: TaskRepository
     private var taskId: Long = 0
     private var taskName: String = ""
     private var taskColor: String = ""
@@ -27,7 +29,7 @@ class TaskExecutionActivity : AppCompatActivity() {
         binding = ActivityTaskExecutionBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        dbHelper = TaskDatabaseHelper(this)
+        repository = TaskRepository(this)
 
         taskId = intent.getLongExtra("task_id", 0)
         taskName = intent.getStringExtra("task_name") ?: ""
@@ -113,14 +115,23 @@ class TaskExecutionActivity : AppCompatActivity() {
     private fun completeTask() {
         countDownTimer?.cancel()
 
-        // 增加完成次数
-        dbHelper.incrementCompletedCount(taskId)
+        lifecycleScope.launch {
+            // 增加完成次数
+            repository.incrementCompletedCount(taskId)
 
-        // 插入完成记录
-        dbHelper.insertCompletionRecord(taskId, taskName, taskColor, durationMinutes)
+            // 插入完成记录
+            val record = CompletionRecord(
+                taskId = taskId,
+                taskName = taskName,
+                taskColor = taskColor,
+                completedAt = System.currentTimeMillis(),
+                duration = durationMinutes
+            )
+            repository.insertCompletionRecord(record)
 
-        Toast.makeText(this, "恭喜！完成了任务", Toast.LENGTH_SHORT).show()
-        finish()
+            Toast.makeText(this@TaskExecutionActivity, "恭喜！完成了任务", Toast.LENGTH_SHORT).show()
+            finish()
+        }
     }
 
     private fun showAbandonDialog() {

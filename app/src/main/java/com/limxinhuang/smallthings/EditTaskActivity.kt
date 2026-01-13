@@ -9,16 +9,18 @@ import android.widget.SeekBar
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.limxinhuang.smallthings.databinding.ActivityEditTaskBinding
 import android.view.inputmethod.InputMethodManager
 import android.content.Context
 import android.widget.GridView
 import android.widget.BaseAdapter
+import kotlinx.coroutines.launch
 
 class EditTaskActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityEditTaskBinding
-    private lateinit var dbHelper: TaskDatabaseHelper
+    private lateinit var repository: TaskRepository
     private var taskId: Long = 0
 
     private val colorOptions = listOf(
@@ -51,7 +53,7 @@ class EditTaskActivity : AppCompatActivity() {
         binding = ActivityEditTaskBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        dbHelper = TaskDatabaseHelper(this)
+        repository = TaskRepository(this)
 
         taskId = intent.getLongExtra("task_id", 0)
 
@@ -112,11 +114,9 @@ class EditTaskActivity : AppCompatActivity() {
             durationMinutes = duration
         )
 
-        val updated = dbHelper.updateTask(task)
-        if (updated) {
+        lifecycleScope.launch {
+            repository.updateTask(task)
             finish()
-        } else {
-            Toast.makeText(this, "保存失败，请重试", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -174,18 +174,20 @@ class EditTaskActivity : AppCompatActivity() {
     }
 
     private fun loadTask() {
-        val tasks = dbHelper.getAllTasks()
-        val task = tasks.find { it.id == taskId }
+        lifecycleScope.launch {
+            val tasks = repository.getAllTasks()
+            val task = tasks.find { it.id == taskId }
 
-        task?.let {
-            binding.etTaskName.setText(it.name)
-            binding.seekbarDuration.progress = it.durationMinutes - 1
-            binding.tvDuration.text = "${it.durationMinutes} 分钟"
+            task?.let {
+                binding.etTaskName.setText(it.name)
+                binding.seekbarDuration.progress = it.durationMinutes - 1
+                binding.tvDuration.text = "${it.durationMinutes} 分钟"
 
-            selectedColor = it.colorCode
-            selectedColorIndex = colorOptions.indexOfFirst { it.colorCode == selectedColor }
-            if (selectedColorIndex == -1) selectedColorIndex = 0
-            updateColorPreview(selectedColor)
+                selectedColor = it.colorCode
+                selectedColorIndex = colorOptions.indexOfFirst { it.colorCode == selectedColor }
+                if (selectedColorIndex == -1) selectedColorIndex = 0
+                updateColorPreview(selectedColor)
+            }
         }
     }
 
@@ -218,12 +220,10 @@ class EditTaskActivity : AppCompatActivity() {
     }
 
     private fun deleteTask() {
-        val deleted = dbHelper.deleteTask(taskId)
-        if (deleted) {
-            Toast.makeText(this, "删除成功", Toast.LENGTH_SHORT).show()
+        lifecycleScope.launch {
+            repository.deleteTask(taskId)
+            Toast.makeText(this@EditTaskActivity, "删除成功", Toast.LENGTH_SHORT).show()
             finish()
-        } else {
-            Toast.makeText(this, "删除失败", Toast.LENGTH_SHORT).show()
         }
     }
 }

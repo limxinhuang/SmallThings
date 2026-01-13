@@ -6,14 +6,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.tabs.TabLayout
 import com.limxinhuang.smallthings.databinding.FragmentStatsBinding
+import kotlinx.coroutines.launch
 
 class StatsFragment : Fragment() {
 
     private lateinit var binding: FragmentStatsBinding
-    private lateinit var dbHelper: TaskDatabaseHelper
+    private lateinit var repository: TaskRepository
     private lateinit var recordsAdapter: CompletionRecordsAdapter
 
     override fun onCreateView(
@@ -28,7 +30,7 @@ class StatsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        dbHelper = TaskDatabaseHelper(requireContext())
+        repository = TaskRepository(requireContext())
 
         setupRecyclerView()
         setupTabs()
@@ -77,134 +79,163 @@ class StatsFragment : Fragment() {
     }
 
     private fun loadTodayRecords() {
-        val records = dbHelper.getTodayCompletionRecords()
-        recordsAdapter.updateRecords(records)
+        lifecycleScope.launch {
+            val records = repository.getTodayCompletionRecords()
+            recordsAdapter.updateRecords(records)
 
-        // 只显示统计卡片
-        binding.layoutStats.visibility = View.VISIBLE
-        binding.layoutTaskStats.visibility = View.GONE
-        binding.tvRecordsTitle.visibility = View.GONE
+            // 只显示统计卡片
+            binding.layoutStats.visibility = View.VISIBLE
+            binding.layoutTaskStats.visibility = View.GONE
+            binding.tvRecordsTitle.visibility = View.GONE
 
-        // 更新统计数据
-        val totalCount = records.size
-        val totalDuration = records.sumOf { it.duration }
-        binding.tvTotalCount.text = totalCount.toString()
-        binding.tvTotalDuration.text = totalDuration.toString()
+            // 更新统计数据
+            val totalCount = records.size
+            val totalDuration = records.sumOf { it.duration }
+            binding.tvTotalCount.text = totalCount.toString()
+            binding.tvTotalDuration.text = totalDuration.toString()
 
-        if (records.isEmpty()) {
-            binding.tvEmptyHint.visibility = View.VISIBLE
-            binding.rvRecords.visibility = View.GONE
-        } else {
-            binding.tvEmptyHint.visibility = View.GONE
-            binding.rvRecords.visibility = View.VISIBLE
+            if (records.isEmpty()) {
+                binding.tvEmptyHint.visibility = View.VISIBLE
+                binding.rvRecords.visibility = View.GONE
+            } else {
+                binding.tvEmptyHint.visibility = View.GONE
+                binding.rvRecords.visibility = View.VISIBLE
+            }
         }
     }
 
     private fun loadWeekRecords() {
-        val records = dbHelper.getWeekCompletionRecords()
-        recordsAdapter.updateRecords(records)
+        lifecycleScope.launch {
+            val records = repository.getWeekCompletionRecords()
+            recordsAdapter.updateRecords(records)
 
-        binding.layoutStats.visibility = View.VISIBLE
-        binding.layoutTaskStats.visibility = View.VISIBLE
-        binding.tvRecordsTitle.visibility = View.VISIBLE
+            binding.layoutStats.visibility = View.VISIBLE
+            binding.layoutTaskStats.visibility = View.VISIBLE
+            binding.tvRecordsTitle.visibility = View.VISIBLE
 
-        val totalCount = records.size
-        val totalDuration = records.sumOf { it.duration }
-        binding.tvTotalCount.text = totalCount.toString()
-        binding.tvTotalDuration.text = totalDuration.toString()
+            val totalCount = records.size
+            val totalDuration = records.sumOf { it.duration }
+            binding.tvTotalCount.text = totalCount.toString()
+            binding.tvTotalDuration.text = totalDuration.toString()
 
-        val taskCounts = records.groupingBy { it.taskName }.eachCount()
-        if (taskCounts.isNotEmpty()) {
-            val mostTask = taskCounts.maxByOrNull { it.value }!!
-            binding.tvMostTask.text = mostTask.key
-            binding.tvMostTaskCount.text = "完成 ${mostTask.value} 次"
+            // 获取所有任务,包括完成次数为0的任务
+            val allTasks = repository.getAllTasks()
+            val taskCounts = records.groupingBy { it.taskName }.eachCount().toMutableMap()
 
-            val leastTask = taskCounts.minByOrNull { it.value }!!
-            binding.tvLeastTask.text = leastTask.key
-            binding.tvLeastTaskCount.text = "完成 ${leastTask.value} 次"
-        }
+            // 为所有任务添加完成次数(默认为0)
+            allTasks.forEach { task ->
+                if (!taskCounts.containsKey(task.name)) {
+                    taskCounts[task.name] = 0
+                }
+            }
 
-        if (records.isEmpty()) {
-            binding.tvEmptyHint.visibility = View.VISIBLE
-            binding.layoutStats.visibility = View.GONE
-            binding.layoutTaskStats.visibility = View.GONE
-            binding.rvRecords.visibility = View.GONE
-            binding.tvRecordsTitle.visibility = View.GONE
-        } else {
-            binding.tvEmptyHint.visibility = View.GONE
-            binding.rvRecords.visibility = View.VISIBLE
+            if (taskCounts.isNotEmpty()) {
+                val mostTask = taskCounts.maxByOrNull { it.value }!!
+                binding.tvMostTask.text = mostTask.key
+                binding.tvMostTaskCount.text = "完成 ${mostTask.value} 次"
+
+                val leastTask = taskCounts.minByOrNull { it.value }!!
+                binding.tvLeastTask.text = leastTask.key
+                binding.tvLeastTaskCount.text = "完成 ${leastTask.value} 次"
+            }
+
+            if (records.isEmpty()) {
+                binding.tvEmptyHint.visibility = View.VISIBLE
+                binding.rvRecords.visibility = View.GONE
+            } else {
+                binding.tvEmptyHint.visibility = View.GONE
+                binding.rvRecords.visibility = View.VISIBLE
+            }
         }
     }
 
     private fun loadMonthRecords() {
-        val records = dbHelper.getMonthCompletionRecords()
-        recordsAdapter.updateRecords(records)
+        lifecycleScope.launch {
+            val records = repository.getMonthCompletionRecords()
+            recordsAdapter.updateRecords(records)
 
-        binding.layoutStats.visibility = View.VISIBLE
-        binding.layoutTaskStats.visibility = View.VISIBLE
-        binding.tvRecordsTitle.visibility = View.VISIBLE
+            binding.layoutStats.visibility = View.VISIBLE
+            binding.layoutTaskStats.visibility = View.VISIBLE
+            binding.tvRecordsTitle.visibility = View.VISIBLE
 
-        val totalCount = records.size
-        val totalDuration = records.sumOf { it.duration }
-        binding.tvTotalCount.text = totalCount.toString()
-        binding.tvTotalDuration.text = totalDuration.toString()
+            val totalCount = records.size
+            val totalDuration = records.sumOf { it.duration }
+            binding.tvTotalCount.text = totalCount.toString()
+            binding.tvTotalDuration.text = totalDuration.toString()
 
-        val taskCounts = records.groupingBy { it.taskName }.eachCount()
-        if (taskCounts.isNotEmpty()) {
-            val mostTask = taskCounts.maxByOrNull { it.value }!!
-            binding.tvMostTask.text = mostTask.key
-            binding.tvMostTaskCount.text = "完成 ${mostTask.value} 次"
+            // 获取所有任务,包括完成次数为0的任务
+            val allTasks = repository.getAllTasks()
+            val taskCounts = records.groupingBy { it.taskName }.eachCount().toMutableMap()
 
-            val leastTask = taskCounts.minByOrNull { it.value }!!
-            binding.tvLeastTask.text = leastTask.key
-            binding.tvLeastTaskCount.text = "完成 ${leastTask.value} 次"
-        }
+            // 为所有任务添加完成次数(默认为0)
+            allTasks.forEach { task ->
+                if (!taskCounts.containsKey(task.name)) {
+                    taskCounts[task.name] = 0
+                }
+            }
 
-        if (records.isEmpty()) {
-            binding.tvEmptyHint.visibility = View.VISIBLE
-            binding.layoutStats.visibility = View.GONE
-            binding.layoutTaskStats.visibility = View.GONE
-            binding.rvRecords.visibility = View.GONE
-            binding.tvRecordsTitle.visibility = View.GONE
-        } else {
-            binding.tvEmptyHint.visibility = View.GONE
-            binding.rvRecords.visibility = View.VISIBLE
+            if (taskCounts.isNotEmpty()) {
+                val mostTask = taskCounts.maxByOrNull { it.value }!!
+                binding.tvMostTask.text = mostTask.key
+                binding.tvMostTaskCount.text = "完成 ${mostTask.value} 次"
+
+                val leastTask = taskCounts.minByOrNull { it.value }!!
+                binding.tvLeastTask.text = leastTask.key
+                binding.tvLeastTaskCount.text = "完成 ${leastTask.value} 次"
+            }
+
+            if (records.isEmpty()) {
+                binding.tvEmptyHint.visibility = View.VISIBLE
+                binding.rvRecords.visibility = View.GONE
+            } else {
+                binding.tvEmptyHint.visibility = View.GONE
+                binding.rvRecords.visibility = View.VISIBLE
+            }
         }
     }
 
     private fun loadYearRecords() {
-        val records = dbHelper.getYearCompletionRecords()
-        recordsAdapter.updateRecords(records)
+        lifecycleScope.launch {
+            val records = repository.getYearCompletionRecords()
+            recordsAdapter.updateRecords(records)
 
-        binding.layoutStats.visibility = View.VISIBLE
-        binding.layoutTaskStats.visibility = View.VISIBLE
-        binding.tvRecordsTitle.visibility = View.VISIBLE
+            binding.layoutStats.visibility = View.VISIBLE
+            binding.layoutTaskStats.visibility = View.VISIBLE
+            binding.tvRecordsTitle.visibility = View.VISIBLE
 
-        val totalCount = records.size
-        val totalDuration = records.sumOf { it.duration }
-        binding.tvTotalCount.text = totalCount.toString()
-        binding.tvTotalDuration.text = totalDuration.toString()
+            val totalCount = records.size
+            val totalDuration = records.sumOf { it.duration }
+            binding.tvTotalCount.text = totalCount.toString()
+            binding.tvTotalDuration.text = totalDuration.toString()
 
-        val taskCounts = records.groupingBy { it.taskName }.eachCount()
-        if (taskCounts.isNotEmpty()) {
-            val mostTask = taskCounts.maxByOrNull { it.value }!!
-            binding.tvMostTask.text = mostTask.key
-            binding.tvMostTaskCount.text = "完成 ${mostTask.value} 次"
+            // 获取所有任务,包括完成次数为0的任务
+            val allTasks = repository.getAllTasks()
+            val taskCounts = records.groupingBy { it.taskName }.eachCount().toMutableMap()
 
-            val leastTask = taskCounts.minByOrNull { it.value }!!
-            binding.tvLeastTask.text = leastTask.key
-            binding.tvLeastTaskCount.text = "完成 ${leastTask.value} 次"
-        }
+            // 为所有任务添加完成次数(默认为0)
+            allTasks.forEach { task ->
+                if (!taskCounts.containsKey(task.name)) {
+                    taskCounts[task.name] = 0
+                }
+            }
 
-        if (records.isEmpty()) {
-            binding.tvEmptyHint.visibility = View.VISIBLE
-            binding.layoutStats.visibility = View.GONE
-            binding.layoutTaskStats.visibility = View.GONE
-            binding.rvRecords.visibility = View.GONE
-            binding.tvRecordsTitle.visibility = View.GONE
-        } else {
-            binding.tvEmptyHint.visibility = View.GONE
-            binding.rvRecords.visibility = View.VISIBLE
+            if (taskCounts.isNotEmpty()) {
+                val mostTask = taskCounts.maxByOrNull { it.value }!!
+                binding.tvMostTask.text = mostTask.key
+                binding.tvMostTaskCount.text = "完成 ${mostTask.value} 次"
+
+                val leastTask = taskCounts.minByOrNull { it.value }!!
+                binding.tvLeastTask.text = leastTask.key
+                binding.tvLeastTaskCount.text = "完成 ${leastTask.value} 次"
+            }
+
+            if (records.isEmpty()) {
+                binding.tvEmptyHint.visibility = View.VISIBLE
+                binding.rvRecords.visibility = View.GONE
+            } else {
+                binding.tvEmptyHint.visibility = View.GONE
+                binding.rvRecords.visibility = View.VISIBLE
+            }
         }
     }
 }

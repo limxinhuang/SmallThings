@@ -6,15 +6,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.limxinhuang.smallthings.databinding.FragmentHomeBinding
+import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
 
     private lateinit var binding: FragmentHomeBinding
     private lateinit var taskAdapter: TaskAdapter
-    private lateinit var dbHelper: TaskDatabaseHelper
+    private lateinit var repository: TaskRepository
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -28,7 +30,7 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        dbHelper = TaskDatabaseHelper(requireContext())
+        repository = TaskRepository(requireContext())
 
         setupRecyclerView()
         loadTasks()
@@ -71,12 +73,14 @@ class HomeFragment : Fragment() {
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val position = viewHolder.adapterPosition
-                val tasks = dbHelper.getAllTasks()
-                if (position >= 0 && position < tasks.size) {
-                    val task = tasks[position]
-                    startTaskExecution(task)
-                    // 刷新列表恢复状态
-                    loadTasks()
+                lifecycleScope.launch {
+                    val tasks = repository.getAllTasks()
+                    if (position >= 0 && position < tasks.size) {
+                        val task = tasks[position]
+                        startTaskExecution(task)
+                        // 刷新列表恢复状态
+                        loadTasks()
+                    }
                 }
             }
         }
@@ -95,16 +99,18 @@ class HomeFragment : Fragment() {
     }
 
     private fun loadTasks() {
-        val tasks = dbHelper.getAllTasks()
-        taskAdapter.updateTasks(tasks)
+        lifecycleScope.launch {
+            val tasks = repository.getAllTasks()
+            taskAdapter.updateTasks(tasks)
 
-        // 显示或隐藏空状态
-        if (tasks.isEmpty()) {
-            binding.tvSubtitle.visibility = View.VISIBLE
-            binding.rvTasks.visibility = View.GONE
-        } else {
-            binding.tvSubtitle.visibility = View.GONE
-            binding.rvTasks.visibility = View.VISIBLE
+            // 显示或隐藏空状态
+            if (tasks.isEmpty()) {
+                binding.tvSubtitle.visibility = View.VISIBLE
+                binding.rvTasks.visibility = View.GONE
+            } else {
+                binding.tvSubtitle.visibility = View.GONE
+                binding.rvTasks.visibility = View.VISIBLE
+            }
         }
     }
 }
