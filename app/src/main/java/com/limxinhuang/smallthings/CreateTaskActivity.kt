@@ -37,6 +37,17 @@ class CreateTaskActivity : AppCompatActivity() {
         setupToolbar()
         setupColorPicker()
         setupViews()
+
+        // 初始化默认颜色为第一个未使用的颜色
+        lifecycleScope.launch {
+            val usedColors = repository.getUsedColors()
+            val availableColors = AVAILABLE_COLORS.filterNot { it in usedColors }
+
+            if (availableColors.isNotEmpty()) {
+                selectedColor = availableColors[0]
+                updateColorPreview(selectedColor)
+            }
+        }
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {

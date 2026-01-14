@@ -120,4 +120,47 @@ class TaskRepository(context: Context) {
             taskDao.insertCompletionRecord(record)
         }
     }
+
+    // 获取所有每日总结(按日期倒序)
+    suspend fun getAllDailySummaries(): List<DailySummary> = withContext(Dispatchers.IO) {
+        val allRecords = taskDao.getAllCompletionRecords()
+
+        // 按日期分组
+        val recordsByDate = allRecords.groupBy { record ->
+            // 将时间戳转换为当天0点
+            val calendar = Calendar.getInstance().apply {
+                timeInMillis = record.completedAt
+                set(Calendar.HOUR_OF_DAY, 0)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }
+            calendar.timeInMillis
+        }
+
+        // 为每一天创建总结
+        recordsByDate.map { (date, records) ->
+            val taskCount = records.size
+            val totalDuration = records.sumOf { it.duration }
+
+            // 计算最专注任务(完成次数最多的)
+            val taskCounts = records.groupingBy { it.taskName }.eachCount()
+            val mostFocusedTaskName = taskCounts.maxByOrNull { it.value }?.key
+            val mostFocusedTaskCount = taskCounts.maxByOrNull { it.value }?.value ?: 0
+
+            // 计算最专注任务的总时长
+            val mostFocusedTaskRecords = records.filter { it.taskName == mostFocusedTaskName }
+            val mostFocusedTaskDuration = mostFocusedTaskRecords.sumOf { it.duration }
+
+            DailySummary(
+                date = date,
+                taskCount = taskCount,
+                totalDuration = totalDuration,
+                mostFocusedTask = mostFocusedTaskName,
+                mostFocusedTaskCount = mostFocusedTaskCount,
+                mostFocusedTaskDuration = mostFocusedTaskDuration,
+                records = records.sortedByDescending { it.completedAt }
+            )
+        }.sortedByDescending { it.date }
+    }
 }

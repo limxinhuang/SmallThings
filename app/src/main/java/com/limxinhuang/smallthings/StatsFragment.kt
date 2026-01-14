@@ -94,6 +94,22 @@ class StatsFragment : Fragment() {
             binding.tvTotalCount.text = totalCount.toString()
             binding.tvTotalDuration.text = totalDuration.toString()
 
+            // 计算今日最常做的任务
+            if (records.isNotEmpty()) {
+                val taskCounts = records.groupingBy { it.taskName }.eachCount()
+                val mostTask = taskCounts.maxByOrNull { it.value }
+
+                if (mostTask != null && mostTask.value > 0) {
+                    binding.cardTodayMostTask.visibility = View.VISIBLE
+                    binding.tvTodayMostTask.text = mostTask.key
+                    binding.tvTodayMostTaskCount.text = "完成 ${mostTask.value} 次"
+                } else {
+                    binding.cardTodayMostTask.visibility = View.GONE
+                }
+            } else {
+                binding.cardTodayMostTask.visibility = View.GONE
+            }
+
             if (records.isEmpty()) {
                 binding.tvEmptyHint.visibility = View.VISIBLE
                 binding.rvRecords.visibility = View.GONE

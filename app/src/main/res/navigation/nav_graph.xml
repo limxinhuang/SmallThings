@@ -18,12 +18,6 @@
         tools:layout="@layout/fragment_stats" />
 
     <fragment
-        android:id="@+id/dailySummaryFragment"
-        android:name="com.limxinhuang.smallthings.DailySummaryFragment"
-        android:label="每日总结"
-        tools:layout="@layout/fragment_daily_summary" />
-
-    <fragment
         android:id="@+id/profileFragment"
         android:name="com.limxinhuang.smallthings.ProfileFragment"
         android:label="我的"
