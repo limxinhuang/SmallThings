@@ -180,7 +180,9 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:max="29"
-                        android:progress="14" />
+                        android:progress="14"
+                        android:progressTint="#6200EE"
+                        android:thumbTint="#6200EE" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
