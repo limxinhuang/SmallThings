@@ -79,7 +79,7 @@ class ProfileFragment : Fragment() {
     private fun showBackupDialog() {
         AlertDialog.Builder(requireContext())
             .setTitle("备份数据")
-            .setMessage("将导出所有任务和完成记录为 JSON 文件。\n\n文件将保存在 Download 文件夹中。")
+            .setMessage("将导出所有小事和完成记录为 JSON 文件。\n\n文件将保存在 Download 文件夹中。")
             .setPositiveButton("备份") { _, _ ->
                 backupData()
             }

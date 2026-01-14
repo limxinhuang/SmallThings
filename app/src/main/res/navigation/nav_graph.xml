@@ -20,7 +20,7 @@
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.limxinhuang.smallthings.ProfileFragment"
-        android:label="我的"
+        android:label=""
         tools:layout="@layout/fragment_profile" />
 
 </navigation>

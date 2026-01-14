@@ -35,7 +35,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="24dp"
-        android:contentDescription="创建事项"
+        android:contentDescription="创建小事"
         app:srcCompat="@android:drawable/ic_input_add"
         app:tint="#FFFFFF"
         app:backgroundTint="#6200EE"

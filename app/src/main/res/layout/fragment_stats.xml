@@ -75,7 +75,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="完成任务"
+                            android:text="完成小事"
                             android:textSize="14sp"
                             android:textColor="#666666"
                             android:layout_marginTop="4dp" />
@@ -123,7 +123,7 @@
 
             </LinearLayout>
 
-            <!-- 今日最常做任务卡片 -->
+            <!-- 今日最常做小事卡片 -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/card_today_most_task"
                 android:layout_width="match_parent"
@@ -145,7 +145,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="最常做的任务"
+                        android:text="最常做的小事"
                         android:textSize="14sp"
                         android:textColor="#666666" />
 
@@ -174,7 +174,7 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- 最常做和最少做任务卡片容器 -->
+            <!-- 最常做和最少做小事卡片容器 -->
             <LinearLayout
                 android:id="@+id/layout_task_stats"
                 android:layout_width="match_parent"
@@ -185,7 +185,7 @@
                 android:layout_marginBottom="16dp"
                 android:visibility="gone">
 
-                <!-- 最常做任务卡片 -->
+                <!-- 最常做小事卡片 -->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/card_most_task"
                     android:layout_width="0dp"
@@ -205,7 +205,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="最常做任务"
+                            android:text="最常做小事"
                             android:textSize="14sp"
                             android:textColor="#666666" />
 
@@ -234,7 +234,7 @@
 
                 </androidx.cardview.widget.CardView>
 
-                <!-- 最少做任务卡片 -->
+                <!-- 最少做小事卡片 -->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/card_least_task"
                     android:layout_width="0dp"
@@ -254,7 +254,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="最少做任务"
+                            android:text="最少做小事"
                             android:textSize="14sp"
                             android:textColor="#666666" />
 
@@ -303,7 +303,7 @@
                 android:id="@+id/tv_empty_hint"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="暂无完成记录\n开始做第一个任务吧！"
+                android:text="暂无完成记录\n开始做第一件小事吧！"
                 android:textSize="16sp"
                 android:textColor="#999999"
                 android:gravity="center"

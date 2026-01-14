@@ -70,7 +70,7 @@ class CreateTaskActivity : AppCompatActivity() {
     private fun setupToolbar() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "创建事项"
+        supportActionBar?.title = "创建一件小事"
         binding.toolbar.setNavigationOnClickListener {
             finish()
         }
@@ -101,7 +101,7 @@ class CreateTaskActivity : AppCompatActivity() {
             val availableColors = AVAILABLE_COLORS.filterNot { it in usedColors }
 
             if (availableColors.isEmpty()) {
-                Toast.makeText(this@CreateTaskActivity, "所有颜色都已使用，请先删除一些任务", Toast.LENGTH_LONG).show()
+                Toast.makeText(this@CreateTaskActivity, "所有颜色都已使用，请先删除一些小事", Toast.LENGTH_LONG).show()
                 return@launch
             }
 
@@ -159,7 +159,7 @@ class CreateTaskActivity : AppCompatActivity() {
         binding.btnSave.setOnClickListener {
             val taskName = binding.etTaskName.text.toString()
             if (taskName.isBlank()) {
-                Toast.makeText(this, "请输入事项名称", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "请输入小事名称", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 

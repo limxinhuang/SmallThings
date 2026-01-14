@@ -32,7 +32,7 @@
             android:layout_marginTop="12dp"
             android:gravity="center_vertical">
 
-            <!-- 完成任务数 -->
+            <!-- 完成小事数 -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -52,7 +52,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="完成任务"
+                    android:text="完成小事"
                     android:textSize="12sp"
                     android:textColor="#999999" />
             </LinearLayout>
@@ -83,7 +83,7 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- 最专注任务 -->
+        <!-- 最专注小事 -->
         <LinearLayout
             android:id="@+id/layout_most_focused"
             android:layout_width="match_parent"

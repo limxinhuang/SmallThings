@@ -33,7 +33,7 @@
                 android:id="@+id/tv_task_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="任务名称"
+                android:text="小事名称"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:textColor="#333333" />

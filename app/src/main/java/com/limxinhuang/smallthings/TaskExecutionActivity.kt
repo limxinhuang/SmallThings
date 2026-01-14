@@ -143,15 +143,15 @@ class TaskExecutionActivity : AppCompatActivity() {
             // 发送完成通知
             sendCompletionNotification()
 
-            Toast.makeText(this@TaskExecutionActivity, "恭喜！完成了任务", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this@TaskExecutionActivity, "恭喜！完成了这件小事", Toast.LENGTH_SHORT).show()
             finish()
         }
     }
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = "任务完成通知"
-            val descriptionText = "任务完成时的提醒通知"
+            val name = "小事完成通知"
+            val descriptionText = "小事完成时的提醒通知"
             val importance = NotificationManager.IMPORTANCE_DEFAULT
             val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
                 description = descriptionText
@@ -171,8 +171,8 @@ class TaskExecutionActivity : AppCompatActivity() {
 
         val builder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setContentTitle("任务完成!")
-            .setContentText("恭喜!你完成了「$taskName」,专注了 $durationMinutes 分钟")
+            .setContentTitle("小事完成!")
+            .setContentText("恭喜!你完成了这件小事「$taskName」,专注了 $durationMinutes 分钟")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
@@ -184,8 +184,8 @@ class TaskExecutionActivity : AppCompatActivity() {
 
     private fun showAbandonDialog() {
         android.app.AlertDialog.Builder(this)
-            .setTitle("放弃任务")
-            .setMessage("确定要放弃这个任务吗？")
+            .setTitle("放弃小事")
+            .setMessage("确定要放弃这件小事吗？")
             .setPositiveButton("放弃") { _, _ ->
                 abandonTask()
             }

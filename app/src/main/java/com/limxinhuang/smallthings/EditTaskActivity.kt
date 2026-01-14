@@ -92,7 +92,7 @@ class EditTaskActivity : AppCompatActivity() {
     private fun setupToolbar() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "编辑事项"
+        supportActionBar?.title = "编辑小事"
         binding.toolbar.setNavigationOnClickListener {
             saveAndFinish()
         }
@@ -101,7 +101,7 @@ class EditTaskActivity : AppCompatActivity() {
     private fun saveAndFinish() {
         val taskName = binding.etTaskName.text.toString()
         if (taskName.isBlank()) {
-            Toast.makeText(this, "请输入事项名称", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "请输入小事名称", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -210,8 +210,8 @@ class EditTaskActivity : AppCompatActivity() {
 
     private fun showDeleteDialog() {
         AlertDialog.Builder(this)
-            .setTitle("删除事项")
-            .setMessage("确定要删除这个事项吗？")
+            .setTitle("删除小事")
+            .setMessage("确定要删除这件小事吗？")
             .setPositiveButton("删除") { _, _ ->
                 deleteTask()
             }

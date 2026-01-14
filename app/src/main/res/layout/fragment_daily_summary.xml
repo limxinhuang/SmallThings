@@ -22,7 +22,7 @@
         android:id="@+id/tv_empty_hint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="还没有完成记录\n完成第一个任务吧!"
+        android:text="还没有完成记录\n完成第一件小事吧!"
         android:textSize="16sp"
         android:textColor="#999999"
         android:gravity="center"

@@ -29,7 +29,7 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- 事项名称 -->
+            <!-- 小事名称 -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -46,7 +46,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="事项名称"
+                        android:text="小事名称"
                         android:textSize="16sp"
                         android:textStyle="bold"
                         android:textColor="#333333" />
@@ -62,7 +62,7 @@
                             android:id="@+id/et_task_name"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="请输入事项名称"
+                            android:hint="请输入小事名称"
                             android:textSize="16sp"
                             android:gravity="center_vertical"
                             android:paddingStart="16dp"
