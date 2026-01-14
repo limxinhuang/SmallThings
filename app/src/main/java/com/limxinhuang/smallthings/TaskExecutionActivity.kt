@@ -1,11 +1,18 @@
 package com.limxinhuang.smallthings
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.limxinhuang.smallthings.databinding.ActivityTaskExecutionBinding
@@ -24,6 +31,9 @@ class TaskExecutionActivity : AppCompatActivity() {
     private var countDownTimer: CountDownTimer? = null
     private var timeLeftInMillis: Long = 0
 
+    private val CHANNEL_ID = "task_completion_channel"
+    private val NOTIFICATION_ID = 1
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityTaskExecutionBinding.inflate(layoutInflater)
@@ -36,6 +46,7 @@ class TaskExecutionActivity : AppCompatActivity() {
         taskColor = intent.getStringExtra("task_color") ?: "#FF5252"
         durationMinutes = intent.getIntExtra("task_duration", 15)
 
+        createNotificationChannel()
         setupToolbar()
         setupUI()
         setupButtons()
@@ -129,8 +140,45 @@ class TaskExecutionActivity : AppCompatActivity() {
             )
             repository.insertCompletionRecord(record)
 
+            // 发送完成通知
+            sendCompletionNotification()
+
             Toast.makeText(this@TaskExecutionActivity, "恭喜！完成了任务", Toast.LENGTH_SHORT).show()
             finish()
+        }
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = "任务完成通知"
+            val descriptionText = "任务完成时的提醒通知"
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
+                description = descriptionText
+            }
+            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
+    private fun sendCompletionNotification() {
+        // 创建点击通知后打开应用的Intent
+        val intent = android.content.Intent(this, MainActivity::class.java)
+        intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
+
+        val pendingIntentFlags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        val pendingIntent = PendingIntent.getActivity(this, 0, intent, pendingIntentFlags)
+
+        val builder = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setContentTitle("任务完成!")
+            .setContentText("恭喜!你完成了「$taskName」,专注了 $durationMinutes 分钟")
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+
+        with(NotificationManagerCompat.from(this)) {
+            notify(NOTIFICATION_ID, builder.build())
         }
     }
 
